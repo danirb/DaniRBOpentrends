@@ -1,25 +1,30 @@
 package com.devforbest.danirbopentrends.network;
 
-
 import com.devforbest.danirbopentrends.Constants;
-import com.squareup.okhttp.OkHttpClient;
 
-import retrofit.GsonConverterFactory;
-import retrofit.Retrofit;
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 
 /**
  * Created by dani on 17/11/15.
  */
-class ServiceGenerator {
-//    private static final String API_BASE_URL = "https://randomapi.com/api/?key=LMW0-SW97-ISC4-FF25&id=t60ldyb&results=20";
-    private static final OkHttpClient httpClient = new OkHttpClient();
-    private static final Retrofit.Builder builder =
+public class ServiceGenerator {
+    public static HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+// set your desired log level
+
+    private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+
+    private static Retrofit.Builder builder =
             new Retrofit.Builder()
                     .baseUrl(Constants.API_BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create());
 
     public static <S> S createService(Class<S> serviceClass) {
-        Retrofit retrofit = builder.client(httpClient).build();
+        logging.setLevel(HttpLoggingInterceptor.Level.BASIC);
+        Retrofit retrofit = builder.client(httpClient.addInterceptor(logging).build()).build();
         return retrofit.create(serviceClass);
     }
 }

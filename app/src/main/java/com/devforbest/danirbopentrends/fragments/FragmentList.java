@@ -1,21 +1,30 @@
 package com.devforbest.danirbopentrends.fragments;
 
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.devforbest.danirbopentrends.R;
-import com.devforbest.danirbopentrends.network.GetList;
+import com.devforbest.danirbopentrends.adapters.ListRecyclerAdapter;
+import com.devforbest.danirbopentrends.network.ResponseModel;
+import com.devforbest.danirbopentrends.network.Service;
+import com.devforbest.danirbopentrends.network.ServiceGenerator;
+
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class FragmentList extends FragmentBase {
     private static FragmentList mInstance;
     private View rootView;
-    private GetList g;
     private RecyclerView rv;
+    private List<ResponseModel.Result> listaResponse;
 
     public static FragmentList getInstance() {
         if (mInstance == null) mInstance = new FragmentList();
@@ -27,21 +36,45 @@ public class FragmentList extends FragmentBase {
         rootView = inflater.inflate(R.layout.fragment_list, container, false);
 
         rv = (RecyclerView) rootView.findViewById(R.id.rv_list);
-
-        setRecycler();
         getCensusAsynk();
+
         return rootView;
     }
 
     private void getCensusAsynk() {
-        g = new GetList(rootView.getContext(), rv);
-        g.execute();
-    }
+        Service client = ServiceGenerator.createService(Service.class);
 
-    private void setRecycler() {
-        RecyclerView rv = (RecyclerView) rootView.findViewById(R.id.rv_list);
-        rv.setHasFixedSize(true);
-        rv.setLayoutManager(new LinearLayoutManager(rootView.getContext(), LinearLayoutManager.VERTICAL, false));
+        Call<ResponseModel> call = client.repoVillage();
+        call.enqueue(new Callback<ResponseModel>() {
+            @Override
+            public void onResponse(Call<ResponseModel> call, Response<ResponseModel> response) {
+                call.enqueue(new Callback<ResponseModel>() {
+                    @Override
+                    public void onResponse(Call<ResponseModel> call, Response<ResponseModel> response) {
+                        listaResponse = response.body().getResult();
+                        Log.d("DRB", response.body().getResult().toString());
+
+                        if (listaResponse != null) {
+                            Log.d("DRB", response.body().getResult().toString());
+                            rv.setAdapter(new ListRecyclerAdapter(listaResponse, rootView.getContext()));
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseModel> call, Throwable t) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Call<ResponseModel> call, Throwable t) {
+
+            }
+
+
+        });
+
     }
 
 }

@@ -5,6 +5,6 @@ package com.devforbest.danirbopentrends;
  */
 public class Constants {
     public static final int TIME_SPLASH = 2000;
-    public static final String API_BASE_URL = "https://randomapi.com/api/?key=LMW0-SW97-ISC4-FF25&id=t60ldyb&results=20";
+    public static final String API_BASE_URL = "https://private-9db31-otsample.apiary-mock.com/10?&key=1234-ABCD&results=20&id=t60ldyb";
 
 }
